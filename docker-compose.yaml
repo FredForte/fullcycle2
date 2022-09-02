@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  db:
+    image: mysql
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=mysql
+      - MYSQL_ROOT_PASSWORD=senha
+    networks:
+      - node-network
+
+  app:
+    build:
+      context: node
+    container_name: app
+    networks:
+      - node-network
+    depends_on:
+      - db
+    volumes:
+      - ./node:/user/src/app
+    tty: true
+    # ports:
+    #   - "3000:3000"
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 50s docker-entrypoint.sh
+    command: node /user/src/app index.js
+
+  engine:
+    build:
+      context: nginx
+    container_name: engine
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    tty: true
+    ports:
+      - "8080:80"
+    networks:
+      - node-network
+
+
+networks:
+  node-network:
+    driver: bridge
