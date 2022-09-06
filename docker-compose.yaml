@@ -6,24 +6,24 @@ services:
     container_name: db
     restart: always
     tty: true
-    volumes:
-      - ./mysql:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=mysql
-      - MYSQL_ROOT_PASSWORD=senha
+      MYSQL_DATABASE: nodedb
+      MYSQL_ROOT_PASSWORD: senha
+    volumes:
+      - ./dump:/docker-entrypoint-initdb.d
     networks:
       - node-network
 
   app:
     build:
-      context: node
+      context: app
     container_name: app
     networks:
       - node-network
     depends_on:
       - db
-    volumes:
-      - ./node:/user/src/app
+    # volumes:
+    #   - ./app:/user/src/app
     tty: true
     # ports:
     #   - "3000:3000"
